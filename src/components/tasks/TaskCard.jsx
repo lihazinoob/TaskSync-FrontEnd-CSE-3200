@@ -31,6 +31,17 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Debug logging
+  console.log("TaskCard Debug:", {
+    taskId: task.id,
+    taskTitle: task.title,
+    assignedToId: task.assignedToId,
+    currentUserId: user?.id,
+    isAssigned: user && task.assignedToId === user.id,
+    taskStatus: task.status,
+    shouldShowMenu: user && task.assignedToId === user.id && !task.status
+  });
+
   const getStatusColor = (status) => {
     return status 
       ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
@@ -98,16 +109,20 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
         updatedAt: new Date().toISOString()
       };
 
+      console.log("Updating task:", task.id, "with data:", updatedTaskData);
+
       const response = await updateTask(task.id, updatedTaskData);
       
       if (response.success) {
         toast.success("Task marked as complete!");
+        console.log("Task updated successfully:", response.data);
         // Call the callback to update the parent component
         if (onTaskUpdated) {
           onTaskUpdated(response.data);
         }
       } else {
         toast.error(response.message || "Failed to update task");
+        console.error("Failed to update task:", response.message);
       }
     } catch (error) {
       console.error("Error updating task:", error);

@@ -55,6 +55,15 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
     // You might want to emit an event or call a callback to update the project info
   };
 
+  const handleTaskUpdated = (updatedTask) => {
+    // Update the task in the list
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === updatedTask.id ? updatedTask : task
+      )
+    );
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between px-4">
@@ -88,7 +97,12 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
       ) : tasks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} users={users} />
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              users={users}
+              onTaskUpdated={handleTaskUpdated}
+            />
           ))}
         </div>
       ) : (
