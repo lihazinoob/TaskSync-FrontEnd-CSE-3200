@@ -11,10 +11,12 @@ import {
   CalendarDays,
   UserCircle,
   Clock3,
-  Check
+  Check,
+  CalendarDays as CalendarIcon,
+  User as UserIcon
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -44,8 +46,8 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
 
   const getStatusColor = (status) => {
     return status 
-      ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-      : "bg-amber-50 text-amber-700 border-amber-200";
+      ? "bg-emerald-100 text-emerald-700" 
+      : "bg-amber-100 text-amber-700";
   };
 
   const getStatusLabel = (status) => {
@@ -54,9 +56,9 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
 
   const getStatusIcon = (status) => {
     return status ? (
-      <CheckCircle className="w-5 h-5 text-emerald-600" />
+      <CheckCircle className="w-4 h-4 text-emerald-600" />
     ) : (
-      <Circle className="w-5 h-5 text-amber-500" />
+      <Circle className="w-4 h-4 text-amber-500" />
     );
   };
 
@@ -81,17 +83,6 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   const isOverdue = () => {
     if (!task.dueDate) return false;
     return new Date(task.dueDate) < new Date() && !task.status;
-  };
-
-  // Get priority color based on due date
-  const getPriorityColor = () => {
-    if (isOverdue()) return "border-red-200 bg-red-50";
-    if (!task.dueDate) return "border-gray-200 bg-white";
-    
-    const daysUntilDue = Math.ceil((new Date(task.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
-    if (daysUntilDue <= 1) return "border-orange-200 bg-orange-50";
-    if (daysUntilDue <= 3) return "border-yellow-200 bg-yellow-50";
-    return "border-gray-200 bg-white";
   };
 
   // Handle mark as complete
@@ -135,34 +126,17 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   return (
     <Card className={`
       group relative overflow-hidden transition-all duration-300 ease-in-out
-      hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]
-      border-2 ${getPriorityColor()}
+      hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01]
+      border border-border/50 bg-muted/40
       ${task.status ? 'opacity-75' : 'opacity-100'}
+      transform transition-all duration-500 ease-in-out
     `}>
-      {/* Status indicator line */}
-      <div className={`
-        absolute top-0 left-0 w-1 h-full transition-all duration-300
-        ${task.status ? 'bg-emerald-500' : 'bg-amber-500'}
-      `} />
-      
-      <CardHeader className="pb-3 pt-4">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg font-semibold text-gray-900 truncate group-hover:text-gray-700 transition-colors">
-              {task.title}
-            </CardTitle>
-            <div className="flex items-center gap-2 mt-2">
-              {getStatusIcon(task.status)}
-              <Badge className={`${getStatusColor(task.status)} border font-medium`}>
-                {getStatusLabel(task.status)}
-              </Badge>
-              {isOverdue() && (
-                <Badge className="bg-red-100 text-red-700 border-red-200 font-medium">
-                  Overdue
-                </Badge>
-              )}
-            </div>
-          </div>
+      <CardContent className="p-3">
+        {/* Header with title and action button */}
+        <div className="flex justify-between items-start mb-2">
+          <h4 className="font-medium text-sm line-clamp-1 flex-1 mr-2">
+            {task.title}
+          </h4>
           
           {/* Three dots menu - only show if user is assigned to this task */}
           {isAssignedToCurrentUser() && !task.status && (
@@ -171,10 +145,10 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   disabled={isUpdating}
                 >
-                  <MoreHorizontal className="w-4 h-4" />
+                  <MoreHorizontal className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -183,75 +157,64 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
                   disabled={isUpdating}
                   className="flex items-center gap-2"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3 h-3" />
                   {isUpdating ? "Updating..." : "Mark as Complete"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
         </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
+
         {/* Description */}
-        <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
           {task.description}
         </p>
-        
+
         {/* Task details */}
-        <div className="space-y-3">
-          {/* Due date with priority indicator */}
+        <div className="flex flex-col gap-1 mb-3">
+          {/* Due date */}
           {task.dueDate && (
-            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-              <CalendarDays className="w-4 h-4 text-gray-500" />
-              <div className="flex-1">
-                <span className="text-sm font-medium text-gray-700">
-                  Due: {format(new Date(task.dueDate), "MMM dd, yyyy")}
-                </span>
-                {isOverdue() && (
-                  <span className="text-xs text-red-600 ml-2 font-medium">
-                    Overdue
-                  </span>
-                )}
-              </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <CalendarIcon className="w-3 h-3" />
+              <span>Due: {format(new Date(task.dueDate), "MMM dd")}</span>
+              {isOverdue() && (
+                <span className="text-red-500 font-medium ml-1">(Overdue)</span>
+              )}
             </div>
           )}
           
           {/* Assigned user */}
           {task.assignedToId && (
-            <div className="flex items-center gap-3 p-2 bg-blue-50 rounded-lg">
-              <Avatar className="w-6 h-6">
-                <AvatarImage src="" />
-                <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                  {getUserInitials(task.assignedToId)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <span className="text-sm font-medium text-gray-700">
-                  {getUserName(task.assignedToId)}
-                </span>
-                <span className="text-xs text-gray-500 block">Assigned</span>
-              </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <UserIcon className="w-3 h-3" />
+              <span>{getUserName(task.assignedToId)}</span>
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Clock3 className="w-3 h-3" />
-            <span>Created {format(new Date(task.createdAt), "MMM dd")}</span>
+        {/* Footer with status and creation date */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            {getStatusIcon(task.status)}
+            <Badge className={`text-xs px-2 py-0.5 ${getStatusColor(task.status)}`}>
+              {getStatusLabel(task.status)}
+            </Badge>
           </div>
           
-          {task.subTaskIds && task.subTaskIds.length > 0 && (
-            <div className="flex items-center gap-1">
-              <Tag className="w-3 h-3 text-gray-400" />
-              <span className="text-xs text-gray-500 font-medium">
-                {task.subTaskIds.length} subtask{task.subTaskIds.length !== 1 ? 's' : ''}
-              </span>
-            </div>
-          )}
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(task.createdAt), "MMM dd")}
+          </span>
         </div>
+
+        {/* Subtasks indicator */}
+        {task.subTaskIds && task.subTaskIds.length > 0 && (
+          <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
+            <Tag className="w-3 h-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">
+              {task.subTaskIds.length} subtask{task.subTaskIds.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

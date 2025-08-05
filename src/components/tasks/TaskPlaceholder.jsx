@@ -64,9 +64,13 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
     );
   };
 
+  // Separate tasks by status
+  const todoTasks = tasks.filter(task => !task.status);
+  const doneTasks = tasks.filter(task => task.status);
+
   return (
     <div>
-      <div className="flex items-center justify-between px-4">
+      <div className="flex items-center justify-between px-4 mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mt-2 mb-2">
             Tasks ({tasks.length})
@@ -89,25 +93,88 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
         </Button>
       </div>
       
-      {/* Tasks List */}
+      {/* Tasks Kanban Board */}
       {loading ? (
         <div className="px-4 py-8 text-center text-gray-500">
           Loading tasks...
         </div>
       ) : tasks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
-          {tasks.map((task) => (
-            <TaskCard 
-              key={task.id} 
-              task={task} 
-              users={users}
-              onTaskUpdated={handleTaskUpdated}
-            />
-          ))}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl w-full px-4">
+            {/* ToDo Column */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+                  ToDo ({todoTasks.length})
+                </h3>
+              </div>
+              
+              <div className="space-y-3 min-h-[400px]">
+                {todoTasks.length > 0 ? (
+                  todoTasks.map((task) => (
+                    <TaskCard 
+                      key={task.id} 
+                      task={task} 
+                      users={users}
+                      onTaskUpdated={handleTaskUpdated}
+                    />
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-32 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                    <div className="text-center">
+                      <div className="text-4xl mb-2">📝</div>
+                      <p className="text-sm">No tasks to do</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Done Column */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                  Done ({doneTasks.length})
+                </h3>
+              </div>
+              
+              <div className="space-y-3 min-h-[400px]">
+                {doneTasks.length > 0 ? (
+                  doneTasks.map((task) => (
+                    <TaskCard 
+                      key={task.id} 
+                      task={task} 
+                      users={users}
+                      onTaskUpdated={handleTaskUpdated}
+                    />
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-32 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                    <div className="text-center">
+                      <div className="text-4xl mb-2">🎉</div>
+                      <p className="text-sm">No completed tasks</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="px-4 py-8 text-center text-gray-500">
-          No tasks yet. Create your first task!
+          <div className="text-center">
+            <div className="text-6xl mb-4">📋</div>
+            <p className="text-lg font-medium mb-2">No tasks yet</p>
+            <p className="text-sm text-gray-400 mb-4">Create your first task to get started!</p>
+            <Button 
+              variant={"outline"} 
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              Create a Task
+            </Button>
+          </div>
         </div>
       )}
 
