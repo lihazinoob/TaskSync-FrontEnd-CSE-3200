@@ -28,10 +28,12 @@ import {
 import { useAuth } from "@/contexts/AuthProvider";
 import { updateTask } from "@/service/api/task";
 import { toast } from "sonner";
+import TaskDetailModal from "./TaskDetalModal";
 
 const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Debug logging
   console.log("TaskCard Debug:", {
@@ -123,100 +125,124 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
     }
   };
 
+  // Handle card click
+  const handleCardClick = (e) => {
+    // Don't open modal if clicking on the three dots menu
+    if (e.target.closest('[data-dropdown]')) {
+      return;
+    }
+    setIsDetailModalOpen(true);
+  };
+
   return (
-    <Card className={`
-      group relative overflow-hidden transition-all duration-300 ease-in-out
-      hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01]
-      border border-border/50 bg-muted/40
-      ${task.status ? 'opacity-75' : 'opacity-100'}
-      transform transition-all duration-500 ease-in-out
-    `}>
-      <CardContent className="p-3">
-        {/* Header with title and action button */}
-        <div className="flex justify-between items-start mb-2">
-          <h4 className="font-medium text-sm line-clamp-1 flex-1 mr-2">
-            {task.title}
-          </h4>
-          
-          {/* Three dots menu - only show if user is assigned to this task */}
-          {isAssignedToCurrentUser() && !task.status && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  disabled={isUpdating}
-                >
-                  <MoreHorizontal className="w-3 h-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem 
-                  onClick={handleMarkAsComplete}
-                  disabled={isUpdating}
-                  className="flex items-center gap-2"
-                >
-                  <Check className="w-3 h-3" />
-                  {isUpdating ? "Updating..." : "Mark as Complete"}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-
-        {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
-          {task.description}
-        </p>
-
-        {/* Task details */}
-        <div className="flex flex-col gap-1 mb-3">
-          {/* Due date */}
-          {task.dueDate && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <CalendarIcon className="w-3 h-3" />
-              <span>Due: {format(new Date(task.dueDate), "MMM dd")}</span>
-              {isOverdue() && (
-                <span className="text-red-500 font-medium ml-1">(Overdue)</span>
-              )}
-            </div>
-          )}
-          
-          {/* Assigned user */}
-          {task.assignedToId && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <UserIcon className="w-3 h-3" />
-              <span>{getUserName(task.assignedToId)}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Footer with status and creation date */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            {getStatusIcon(task.status)}
-            <Badge className={`text-xs px-2 py-0.5 ${getStatusColor(task.status)}`}>
-              {getStatusLabel(task.status)}
-            </Badge>
+    <>
+      <Card 
+        className={`
+          group relative overflow-hidden transition-all duration-200 ease-in-out
+          hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01]
+          border border-border/50 bg-muted/40 cursor-pointer
+          ${task.status ? 'opacity-75' : 'opacity-100'}
+          transform transition-all duration-500 ease-in-out
+        `}
+        onClick={handleCardClick}
+      >
+        <CardContent className="p-3">
+          {/* Header with title and action button */}
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="font-medium text-sm line-clamp-1 flex-1 mr-2">
+              {task.title}
+            </h4>
+            
+            {/* Three dots menu - only show if user is assigned to this task */}
+            {isAssignedToCurrentUser() && !task.status && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    disabled={isUpdating}
+                    data-dropdown
+                  >
+                    <MoreHorizontal className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={handleMarkAsComplete}
+                    disabled={isUpdating}
+                    className="flex items-center gap-2"
+                  >
+                    <Check className="w-3 h-3" />
+                    {isUpdating ? "Updating..." : "Mark as Complete"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
-          
-          <span className="text-xs text-muted-foreground">
-            {format(new Date(task.createdAt), "MMM dd")}
-          </span>
-        </div>
 
-        {/* Subtasks indicator */}
-        {task.subTaskIds && task.subTaskIds.length > 0 && (
-          <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
-            <Tag className="w-3 h-3 text-muted-foreground" />
+          {/* Description */}
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+            {task.description}
+          </p>
+
+          {/* Task details */}
+          <div className="flex flex-col gap-1 mb-3">
+            {/* Due date */}
+            {task.dueDate && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <CalendarIcon className="w-3 h-3" />
+                <span>Due: {format(new Date(task.dueDate), "MMM dd")}</span>
+                {isOverdue() && (
+                  <span className="text-red-500 font-medium ml-1">(Overdue)</span>
+                )}
+              </div>
+            )}
+            
+            {/* Assigned user */}
+            {task.assignedToId && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <UserIcon className="w-3 h-3" />
+                <span>{getUserName(task.assignedToId)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Footer with status and creation date */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              {getStatusIcon(task.status)}
+              <Badge className={`text-xs px-2 py-0.5 ${getStatusColor(task.status)}`}>
+                {getStatusLabel(task.status)}
+              </Badge>
+            </div>
+            
             <span className="text-xs text-muted-foreground">
-              {task.subTaskIds.length} subtask{task.subTaskIds.length !== 1 ? 's' : ''}
+              {format(new Date(task.createdAt), "MMM dd")}
             </span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Subtasks indicator */}
+          {task.subTaskIds && task.subTaskIds.length > 0 && (
+            <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
+              <Tag className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">
+                {task.subTaskIds.length} subtask{task.subTaskIds.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        task={task}
+        users={users}
+        onTaskUpdated={onTaskUpdated}
+      />
+    </>
   );
 };
 
