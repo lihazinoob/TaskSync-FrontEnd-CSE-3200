@@ -3,12 +3,14 @@ import { Button } from "../ui/button";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskCard from "./TaskCard";
 import { fetchTasksByProject } from "../../service/api/task";
+import { getAllUsers } from "../../service/api/user";
 
 import { toast } from "sonner";
 
 const TaskPlaceholder = ({ employees = [], projectId }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch tasks for the project
@@ -17,14 +19,24 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
       if (projectId) {
         setLoading(true);
         try {
-          const response = await fetchTasksByProject(projectId);
-          if (response.success) {
-            setTasks(response.data);
+          const [tasksResponse, usersResponse] = await Promise.all([
+            fetchTasksByProject(projectId),
+            getAllUsers()
+          ]);
+          
+          if (tasksResponse.success) {
+            setTasks(tasksResponse.data);
           } else {
-            console.error("Failed to fetch tasks:", response.message);
+            console.error("Failed to fetch tasks:", tasksResponse.message);
+          }
+          
+          if (usersResponse.success) {
+            setUsers(usersResponse.data);
+          } else {
+            console.error("Failed to fetch users:", usersResponse.message);
           }
         } catch (error) {
-          console.error("Error fetching tasks:", error);
+          console.error("Error fetching data:", error);
           toast.error("Failed to load tasks");
         } finally {
           setLoading(false);
@@ -76,7 +88,7 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
       ) : tasks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard key={task.id} task={task} users={users} />
           ))}
         </div>
       ) : (

@@ -49,13 +49,12 @@ const CreateTaskModal = ({
   console.log("CreateTaskModal - employees received:", employees);
   console.log("CreateTaskModal - employees length:", employees.length);
 
-  // Form state
+  // Form state - removed status field since backend uses boolean
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     priority: "medium",
-    status: "todo",
-    assigneeId: "unassigned", // Changed from empty string to "unassigned"
+    assigneeId: "unassigned",
     dueDate: undefined,
     estimatedHours: 1,
   });
@@ -116,7 +115,7 @@ const CreateTaskModal = ({
         title: formData.title,
         description: formData.description,
         dueDate: formData.dueDate ? format(formData.dueDate, "yyyy-MM-dd'T'HH:mm:ss") : null,
-        status: formData.status === "completed", // Convert to boolean
+        status: false, // Always false for new tasks (ToDo state)
         createdAt: now,
         updatedAt: now,
         assignedById: 1, // TODO: Get current user ID
@@ -144,7 +143,6 @@ const CreateTaskModal = ({
           title: "",
           description: "",
           priority: "medium",
-          status: "todo",
           assigneeId: "unassigned",
           dueDate: undefined,
           estimatedHours: 1,
@@ -182,13 +180,6 @@ const CreateTaskModal = ({
     { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-800" },
     { value: "high", label: "High", color: "bg-orange-100 text-orange-800" },
     { value: "urgent", label: "Urgent", color: "bg-red-100 text-red-800" },
-  ];
-
-  const statusOptions = [
-    { value: "todo", label: "To Do", color: "bg-gray-100 text-gray-800" },
-    { value: "in_progress", label: "In Progress", color: "bg-blue-100 text-blue-800" },
-    { value: "review", label: "Review", color: "bg-purple-100 text-purple-800" },
-    { value: "completed", label: "Completed", color: "bg-green-100 text-green-800" },
   ];
 
   return (
@@ -235,53 +226,28 @@ const CreateTaskModal = ({
             )}
           </div>
 
-          {/* Priority and Status Row */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select 
-                value={formData.priority} 
-                onValueChange={(value) => handleInputChange("priority", value)}
-              >
-                <SelectTrigger id="priority">
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  {priorityOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <Badge className={option.color}>
-                          {option.label}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value) => handleInputChange("status", value)}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <Badge className={option.color}>
-                          {option.label}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Priority Row */}
+          <div className="space-y-2">
+            <Label htmlFor="priority">Priority</Label>
+            <Select 
+              value={formData.priority} 
+              onValueChange={(value) => handleInputChange("priority", value)}
+            >
+              <SelectTrigger id="priority">
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <div className="flex items-center gap-2">
+                      <Badge className={option.color}>
+                        {option.label}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Assignee and Due Date Row */}
