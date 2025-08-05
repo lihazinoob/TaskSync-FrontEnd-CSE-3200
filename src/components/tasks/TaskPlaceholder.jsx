@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskCard from "./TaskCard";
+import { fetchTasksByProject } from "../../service/api/task";
 
 import { toast } from "sonner";
 
@@ -11,28 +12,28 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
   const [loading, setLoading] = useState(true);
 
   // Fetch tasks for the project
-  // useEffect(() => {
-  //   const loadTasks = async () => {
-  //     if (projectId) {
-  //       setLoading(true);
-  //       try {
-  //         const response = await fetchTask(projectId);
-  //         if (response.success) {
-  //           setTasks(response.data);
-  //         } else {
-  //           console.error("Failed to fetch tasks:", response.message);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching tasks:", error);
-  //         toast.error("Failed to load tasks");
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     }
-  //   };
+  useEffect(() => {
+    const loadTasks = async () => {
+      if (projectId) {
+        setLoading(true);
+        try {
+          const response = await fetchTasksByProject(projectId);
+          if (response.success) {
+            setTasks(response.data);
+          } else {
+            console.error("Failed to fetch tasks:", response.message);
+          }
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+          toast.error("Failed to load tasks");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-  //   loadTasks();
-  // }, [projectId]);
+    loadTasks();
+  }, [projectId]);
 
   const handleTaskCreated = (newTask) => {
     // Add the new task to the list

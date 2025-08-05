@@ -1,53 +1,26 @@
 import React from "react";
 import { format } from "date-fns";
-import { Calendar, User, Clock, Tag } from "lucide-react";
+import { Calendar, User, Clock, Tag, CheckCircle, Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const TaskCard = ({ task }) => {
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "low":
-        return "bg-green-100 text-green-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "high":
-        return "bg-orange-100 text-orange-800";
-      case "urgent":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const getStatusColor = (status) => {
-    switch (status) {
-      case "todo":
-        return "bg-gray-100 text-gray-800";
-      case "in_progress":
-        return "bg-blue-100 text-blue-800";
-      case "review":
-        return "bg-purple-100 text-purple-800";
-      case "completed":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+    return status 
+      ? "bg-green-100 text-green-800" 
+      : "bg-gray-100 text-gray-800";
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case "todo":
-        return "To Do";
-      case "in_progress":
-        return "In Progress";
-      case "review":
-        return "Review";
-      case "completed":
-        return "Completed";
-      default:
-        return status;
-    }
+    return status ? "Completed" : "Pending";
+  };
+
+  const getStatusIcon = (status) => {
+    return status ? (
+      <CheckCircle className="w-4 h-4 text-green-600" />
+    ) : (
+      <Circle className="w-4 h-4 text-gray-400" />
+    );
   };
 
   return (
@@ -57,10 +30,8 @@ const TaskCard = ({ task }) => {
           <CardTitle className="text-lg font-semibold text-gray-900">
             {task.title}
           </CardTitle>
-          <div className="flex gap-2">
-            <Badge className={getPriorityColor(task.priority)}>
-              {task.priority}
-            </Badge>
+          <div className="flex items-center gap-2">
+            {getStatusIcon(task.status)}
             <Badge className={getStatusColor(task.status)}>
               {getStatusLabel(task.status)}
             </Badge>
@@ -80,33 +51,23 @@ const TaskCard = ({ task }) => {
             </div>
           )}
           
-          {task.estimatedHours && (
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              <span>{task.estimatedHours}h</span>
-            </div>
-          )}
-          
-          {task.assignedTo && (
+          {task.assignedToId && (
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              <span>{task.assignedTo.name || task.assignedTo.email}</span>
+              <span>Assigned to ID: {task.assignedToId}</span>
             </div>
           )}
         </div>
 
-        {task.tags && task.tags.length > 0 && (
-          <div className="flex items-center gap-1">
-            <Tag className="w-3 h-3 text-gray-400" />
-            <div className="flex flex-wrap gap-1">
-              {task.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
+        <div className="flex items-center justify-between text-xs text-gray-400">
+          <span>Created: {format(new Date(task.createdAt), "MMM dd, yyyy")}</span>
+          {task.subTaskIds && task.subTaskIds.length > 0 && (
+            <div className="flex items-center gap-1">
+              <Tag className="w-3 h-3" />
+              <span>{task.subTaskIds.length} subtasks</span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
