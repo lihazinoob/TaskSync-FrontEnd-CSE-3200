@@ -140,3 +140,17 @@ export const getEmployeesOfCompany = async (companyId) => {
     return { success: false, message };
   }
 };
+
+//function for fetching the companies created by the user
+export const fetchCompaniesCreatedByUser = async (userId) => {
+    try {
+        const response = await axiosInstance.get(
+        `/api/companies/creator/${userId}/allcompanies`
+        );
+        return { success: true, data: response.data };
+    } catch (error) {
+        const message =
+        error.response?.data?.message || "Failed to fetch created companies.";
+        return { success: false, message };
+    }
+}

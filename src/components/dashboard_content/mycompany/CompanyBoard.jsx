@@ -4,6 +4,8 @@ import { Loader } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import CompanyLeftPanel from "./CompanyLeftPanel";
 import CompanyRightPanel from "./CompanyRightPanel";
+import { toast } from "sonner";
+import { fetchCompaniesCreatedByUser } from "@/service/api/company";
 
 const CompanyBoard = ({ refreshTrigger, onCreateClick }) => {
   const [companies, setCompanies] = useState([]);
@@ -20,25 +22,29 @@ const CompanyBoard = ({ refreshTrigger, onCreateClick }) => {
   const fetchCompanies = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetchCompaniesAPI(userId);
-      if (response.success) {
-        setCompanies(response.data);
-        // select the first company by default
-        if (response.data.length > 0 && !selectedCompany) {
-          setSelectedCompany(response.data[0]);
+          const response = await fetchCompaniesCreatedByUser(userId);
+          const data = response.data || [];
+          console.log("Fetched companies of a kazi is", data);
+
+          if (response.success) {
+            setCompanies(data);
+            if (data.length > 0 && !selectedCompany) {
+              setSelectedCompany(data[0]);
+            }
+          } else {
+            toast.error(data.message || "Failed to fetch companies.");
+            console.error("Failed to fetch companies:", data.message);
+            setCompanies([]);
+            setSelectedCompany(null);
+          }
+        } catch (error) {
+          toast.error("An error occurred while fetching companies.");
+          console.error("Error fetching companies:", error);
+          setCompanies([]);
+          setSelectedCompany(null);
+        } finally {
+          setIsLoading(false);
         }
-      } else {
-        console.error("Failed to fetch companies:", response.message);
-        setCompanies([]);
-        setSelectedCompany(null);
-      }
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      setCompanies([]);
-      setSelectedCompany(null);
-    } finally {
-      setIsLoading(false);
-    }
   }, [userId]);
 
   // function to handle company selection

@@ -289,18 +289,7 @@ const TaskDetailModal = ({
               </div>
             )}
 
-            {/* Project Info */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Building className="w-4 h-4 text-gray-500" />
-                <h3 className="font-medium text-gray-900">Project</h3>
-              </div>
-              <div className="p-3 bg-indigo-50 rounded-lg">
-                <span className="text-indigo-700 font-medium">
-                  Project ID: {task.projectId}
-                </span>
-              </div>
-            </div>
+            
           </div>
         </div>
 
