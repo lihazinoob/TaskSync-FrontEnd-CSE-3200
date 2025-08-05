@@ -23,3 +23,15 @@ export const createTask = async (taskData) => {
     return { success: false, message };
   }
 };
+
+// function to update a task
+export const updateTask = async (taskId, taskData) => {
+  try {
+    const response = await axiosInstance.put(`/api/tasks/${taskId}`, taskData);
+    return { success: true, data: response.data };
+  } catch (error) {
+    const message =
+      error.response?.data?.message || "Failed to update task.";
+    return { success: false, message };
+  }
+};

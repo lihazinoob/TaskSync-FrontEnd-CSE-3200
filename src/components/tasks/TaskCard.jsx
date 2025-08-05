@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { 
   Calendar, 
@@ -10,14 +10,27 @@ import {
   MoreHorizontal,
   CalendarDays,
   UserCircle,
-  Clock3
+  Clock3,
+  Check
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthProvider";
+import { updateTask } from "@/service/api/task";
+import { toast } from "sonner";
 
-const TaskCard = ({ task, users = [] }) => {
+const TaskCard = ({ task, users = [], onTaskUpdated }) => {
+  const { user } = useAuth();
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const getStatusColor = (status) => {
     return status 
       ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
@@ -48,6 +61,11 @@ const TaskCard = ({ task, users = [] }) => {
     return userName.split(' ').map(name => name[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  // Check if current user is assigned to this task
+  const isAssignedToCurrentUser = () => {
+    return user && task.assignedToId === user.id;
+  };
+
   // Check if task is overdue
   const isOverdue = () => {
     if (!task.dueDate) return false;
@@ -63,6 +81,40 @@ const TaskCard = ({ task, users = [] }) => {
     if (daysUntilDue <= 1) return "border-orange-200 bg-orange-50";
     if (daysUntilDue <= 3) return "border-yellow-200 bg-yellow-50";
     return "border-gray-200 bg-white";
+  };
+
+  // Handle mark as complete
+  const handleMarkAsComplete = async () => {
+    if (task.status) {
+      toast.info("Task is already completed!");
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const updatedTaskData = {
+        ...task,
+        status: true,
+        updatedAt: new Date().toISOString()
+      };
+
+      const response = await updateTask(task.id, updatedTaskData);
+      
+      if (response.success) {
+        toast.success("Task marked as complete!");
+        // Call the callback to update the parent component
+        if (onTaskUpdated) {
+          onTaskUpdated(response.data);
+        }
+      } else {
+        toast.error(response.message || "Failed to update task");
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task. Please try again.");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -96,13 +148,32 @@ const TaskCard = ({ task, users = [] }) => {
               )}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
+          
+          {/* Three dots menu - only show if user is assigned to this task */}
+          {isAssignedToCurrentUser() && !task.status && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  disabled={isUpdating}
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={handleMarkAsComplete}
+                  disabled={isUpdating}
+                  className="flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  {isUpdating ? "Updating..." : "Mark as Complete"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
       

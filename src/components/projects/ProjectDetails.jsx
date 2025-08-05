@@ -120,7 +120,7 @@ const ProjectDetails = () => {
       />
       <div className="flex flex-col gap-4 p-4 pt-0">
         <TabTitle title="Project Details" icon={<Presentation />} />
-        <ProjectInformationCard project={project} />
+        <ProjectInformationCard project={project} employees = {employees} />
         {/* Tasks Placeholder */}
         <TaskPlaceholder 
         employees={employees} 

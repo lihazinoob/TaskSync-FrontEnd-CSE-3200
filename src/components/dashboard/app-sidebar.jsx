@@ -27,7 +27,7 @@ import {
 import { useAuth } from "@/contexts/AuthProvider";
 import ProjectCreationForm from "../projects/ProjectCreationForm";
 import { createProject, fetchProjectsbyCompany } from "@/service/api/project";
-import { fetchCompanyByUserID } from "@/service/api/company";
+import { fetchAllUserCompanies } from "@/service/api/company";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -167,19 +167,22 @@ export function AppSidebar({ companyRefreshTrigger, ...props }) {
     loadProjects();
   }, [selectedCompany?.id]);
 
-  // Fetch companies
+  // Fetch companies - Updated to use fetchAllUserCompanies
   useEffect(() => {
     const loadCompanies = async () => {
       if (user?.id) {
         setIsLoadingCompanies(true);
         try {
-          const response = await fetchCompanyByUserID(user.id);
+          // Use the new function that combines created and joined companies
+          const response = await fetchAllUserCompanies(user.id);
           if (response.success) {
             const formattedCompanies = response.data.map((company) => ({
               id: company.id,
               name: company.companyName,
               logo: Building,
               plan: company.industry || "N/A",
+              // Add a flag to distinguish joined companies in the UI if needed
+              isJoined: company.isJoined || false,
             }));
             setCompanies(formattedCompanies);
           } else {

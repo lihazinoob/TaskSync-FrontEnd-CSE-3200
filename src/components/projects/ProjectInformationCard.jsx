@@ -18,7 +18,7 @@ const statusColors = {
   ON_HOLD: "bg-gray-100 text-gray-600",
 };
 
-const ProjectInformationCard = ({ project }) => {
+const ProjectInformationCard = ({ project,employees }) => {
   const {
     name,
     description,
@@ -74,14 +74,14 @@ const ProjectInformationCard = ({ project }) => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-gray-800">
             <Users className="w-4 h-4 text-gray-500" />
-            <span><strong>Employees:</strong> {noOfEmployees}</span>
+            <span><strong>Employees:</strong>{employees.length}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-800">
             <CheckCircle className="w-4 h-4 text-gray-500" />
-            <span><strong>Tasks:</strong> {tasksCompleted} / {totalTasks}</span>
+            <span><strong>Tasks:</strong>{tasksCompleted} / {totalTasks}</span>
           </div>
           <div className="text-sm text-gray-800">
-            <strong>Completion:</strong> {completionPercentage.toFixed(2)}%
+            <strong>Completion:</strong>{completionPercentage.toFixed(2)}%
             <div className="w-full h-2 mt-1 bg-gray-200 rounded-full">
               <div
                 className="h-2 rounded-full bg-gray-800 transition-all duration-300"
