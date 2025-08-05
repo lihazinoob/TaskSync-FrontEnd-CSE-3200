@@ -32,18 +32,20 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { createTask } from "@/service/api/task";
+import { useAuth } from "@/contexts/AuthProvider";
 
-const CreateTaskModal = ({ 
-  isOpen, 
-  onClose, 
-  projectId, 
-  employees = [], 
-  onTaskCreated 
+const CreateTaskModal = ({
+  isOpen,
+  onClose,
+  projectId,
+  employees = [],
+  onTaskCreated,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [newTag, setNewTag] = useState("");
   const [errors, setErrors] = useState({});
+  const { user } = useAuth();
 
   // Debug: Log employees data
   console.log("CreateTaskModal - employees received:", employees);
@@ -84,60 +86,62 @@ const CreateTaskModal = ({
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ""
+        [field]: "",
       }));
     }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("Please fix the errors in the form");
       return;
     }
-  
+
     setIsSubmitting(true);
     try {
       // Prepare task data according to API specification
       const now = new Date().toISOString();
-      
+
       const taskData = {
         title: formData.title,
         description: formData.description,
-        dueDate: formData.dueDate ? format(formData.dueDate, "yyyy-MM-dd'T'HH:mm:ss") : null,
+        dueDate: formData.dueDate
+          ? format(formData.dueDate, "yyyy-MM-dd'T'HH:mm:ss")
+          : null,
         status: false, // Always false for new tasks (ToDo state)
         createdAt: now,
         updatedAt: now,
-        assignedById: 1, // TODO: Get current user ID
+        assignedById: user?.id,
         parentId: null,
         projectId: parseInt(projectId),
         priority: formData.priority,
         estimatedHours: formData.estimatedHours,
         tags: selectedTags,
       };
-  
+
       // Only add assignedToId if it's not unassigned
       if (formData.assigneeId !== "unassigned") {
         taskData.assignedToId = parseInt(formData.assigneeId);
       }
-  
+
       console.log("Creating task:", taskData);
-      
+
       const response = await createTask(taskData);
-      
+
       if (response.success) {
         toast.success("Task created successfully!");
-        
+
         // Reset form
         setFormData({
           title: "",
@@ -149,7 +153,7 @@ const CreateTaskModal = ({
         });
         setSelectedTags([]);
         setErrors({});
-        
+
         onTaskCreated && onTaskCreated(response.data);
         onClose();
       } else {
@@ -162,7 +166,6 @@ const CreateTaskModal = ({
       setIsSubmitting(false);
     }
   };
-  
 
   const addTag = () => {
     if (newTag.trim() && !selectedTags.includes(newTag.trim())) {
@@ -172,12 +175,16 @@ const CreateTaskModal = ({
   };
 
   const removeTag = (tagToRemove) => {
-    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+    setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove));
   };
 
   const priorityOptions = [
     { value: "low", label: "Low", color: "bg-green-100 text-green-800" },
-    { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-800" },
+    {
+      value: "medium",
+      label: "Medium",
+      color: "bg-yellow-100 text-yellow-800",
+    },
     { value: "high", label: "High", color: "bg-orange-100 text-orange-800" },
     { value: "urgent", label: "Urgent", color: "bg-red-100 text-red-800" },
   ];
@@ -217,7 +224,9 @@ const CreateTaskModal = ({
             <Textarea
               id="description"
               placeholder="Describe the task in detail..."
-              className={`min-h-[100px] ${errors.description ? "border-red-500" : ""}`}
+              className={`min-h-[100px] ${
+                errors.description ? "border-red-500" : ""
+              }`}
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
             />
@@ -229,8 +238,8 @@ const CreateTaskModal = ({
           {/* Priority Row */}
           <div className="space-y-2">
             <Label htmlFor="priority">Priority</Label>
-            <Select 
-              value={formData.priority} 
+            <Select
+              value={formData.priority}
               onValueChange={(value) => handleInputChange("priority", value)}
             >
               <SelectTrigger id="priority">
@@ -240,9 +249,7 @@ const CreateTaskModal = ({
                 {priorityOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     <div className="flex items-center gap-2">
-                      <Badge className={option.color}>
-                        {option.label}
-                      </Badge>
+                      <Badge className={option.color}>{option.label}</Badge>
                     </div>
                   </SelectItem>
                 ))}
@@ -254,9 +261,11 @@ const CreateTaskModal = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="assignee">Assignee</Label>
-              <Select 
-                value={formData.assigneeId} 
-                onValueChange={(value) => handleInputChange("assigneeId", value)}
+              <Select
+                value={formData.assigneeId}
+                onValueChange={(value) =>
+                  handleInputChange("assigneeId", value)
+                }
               >
                 <SelectTrigger id="assignee">
                   <SelectValue placeholder="Select assignee" />
@@ -312,7 +321,12 @@ const CreateTaskModal = ({
               max="100"
               placeholder="1.0"
               value={formData.estimatedHours}
-              onChange={(e) => handleInputChange("estimatedHours", parseFloat(e.target.value) || 0)}
+              onChange={(e) =>
+                handleInputChange(
+                  "estimatedHours",
+                  parseFloat(e.target.value) || 0
+                )
+              }
               className={errors.estimatedHours ? "border-red-500" : ""}
             />
             {errors.estimatedHours && (
@@ -332,7 +346,9 @@ const CreateTaskModal = ({
                   placeholder="Add a tag..."
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addTag())
+                  }
                 />
                 <Button
                   type="button"
@@ -344,7 +360,7 @@ const CreateTaskModal = ({
                   Add
                 </Button>
               </div>
-              
+
               {selectedTags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {selectedTags.map((tag) => (
