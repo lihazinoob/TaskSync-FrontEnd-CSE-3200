@@ -17,13 +17,14 @@ import {
   Layers,
   MapPin,
   Phone,
+  Plus,
   Sparkles,
   Star,
   User,
   UserCheck,
   Verified,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DashboardHeader from "./common/DashboardHeader";
 import TabTitle from "./common/TabTitle";
 import { Button } from "../ui/button";
@@ -46,6 +47,25 @@ const Profile = () => {
   // state to track if the PersonalInformationForm is open or not
   const [isPersoanlInformationFormOpen, setIsPersoanlInformationFormOpen] =
     useState(false);
+
+  // state to track the profile Image
+  const [profileImage, setProfileImage] = useState(null);
+
+  // refernece to the file input for profile image upload
+  const fileInputRef = useRef(null);
+
+  // function to handle the click on the plus icon to open file input
+  const handlePlusClick = () => {
+    fileInputRef.current?.click();
+  }
+
+  // function to handle the image upload
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    console.log("Image file selected:", file);
+    const imageUrl = URL.createObjectURL(file);
+    setProfileImage(imageUrl);
+  }
 
   // state to track the formData of personal Information
   const [personalInformationFormData, setPersonalInformationFormData] =
@@ -237,17 +257,18 @@ const Profile = () => {
   };
 
   // function to handle status information submission
-  const handleStatusInformationSubmit = async() => {
+  const handleStatusInformationSubmit = async () => {
     const submitData = {
       accountStatus: statusInformationData.accountStatus,
-      availabilityStatus: statusInformationData.availabilityStatus.toLowerCase(),
+      availabilityStatus:
+        statusInformationData.availabilityStatus.toLowerCase(),
       experienceYears: parseInt(statusInformationData.experienceYears) || 0,
       preferredWorkingHours: statusInformationData.preferredWorkingHours,
       language: statusInformationData.language,
     };
     console.log("Submitting Status Information:", submitData);
     // Here you would typically send the updated status information to your backend
-    const result = await updateUserStatus(user.username,submitData);
+    const result = await updateUserStatus(user.username, submitData);
 
     if (result.success) {
       console.log("Status updated successfully:", result.data);
@@ -284,16 +305,31 @@ const Profile = () => {
         <div className="relative rounded-xl overflow-hidden bg-card border">
           <div className="h-40 bg-gradient-to-r from-primary/30 to-primary/10"></div>
           <div className="absolute top-24 left-6 border-4 border-background rounded-full bg-background">
-            <div className="w-32 h-32 rounded-full flex items-center justify-center bg-primary/10 text-primary">
-              {user.profileImage ? (
+            <div className="relative w-32 h-32 rounded-full flex items-center justify-center bg-primary/10 text-primary">
+              {profileImage ? (
                 <img
-                  src={user.profileImage}
+                  src={profileImage}
                   alt={displayName}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
                 <User size={48} />
               )}
+              <button
+                className="absolute top-0 right-0 bg-background rounded-full p-1 border-2 border-primary"
+                onClick={handlePlusClick}
+                title="Upload Profile Image"
+              >
+                <Plus size={20} className="text-primary" />
+              </button>
+              {/* Hidden file input*/}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
             </div>
           </div>
           <div className="pt-20 pb-6 px-6">
