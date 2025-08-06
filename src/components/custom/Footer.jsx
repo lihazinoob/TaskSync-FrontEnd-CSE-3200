@@ -21,7 +21,7 @@ const Footer = () => {
                 alt="Logo"
                 className="hidden h-6 w-6 dark:block"
               />
-              <span className="text-lg font-semibold">CareerPilot</span>
+              <span className="text-lg font-semibold">TaskSync</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Your AI-powered career guidance platform to navigate your
