@@ -10,7 +10,7 @@ import TaskCard from "../tasks/TaskCard";
 import { Button } from "../ui/button";
 import TaskPlaceholder from "../tasks/TaskPlaceholder";
 import { getEmployeesOfCompany } from "@/service/api/company";
-
+import ProjectTree from "./ProjectTree";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -46,8 +46,8 @@ const ProjectDetails = () => {
     loadProject();
   }, [id]); // Add id to dependency array
 
-   // useEffect hook to fetch all the employees of the company
-   useEffect(() => {
+  // useEffect hook to fetch all the employees of the company
+  useEffect(() => {
     const fetchEmployees = async () => {
       if (project?.companyId) {
         try {
@@ -65,27 +65,24 @@ const ProjectDetails = () => {
         }
       }
     };
-    
+
     fetchEmployees();
   }, [project?.companyId]);
 
   const handleTaskCreated = (newTask) => {
     // Update the task count
-    setTaskCount(prev => prev + 1);
-    
+    setTaskCount((prev) => prev + 1);
+
     // Update the project object to reflect the new task count
     if (project) {
-      setProject(prev => ({
+      setProject((prev) => ({
         ...prev,
-        totalTasks: (prev.totalTasks || 0) + 1
+        totalTasks: (prev.totalTasks || 0) + 1,
       }));
     }
   };
-  
 
- 
-  
-
+  console.log("Project Details in Project Details Page:", project);
 
   if (loading) {
     return (
@@ -119,21 +116,15 @@ const ProjectDetails = () => {
       />
       <div className="flex flex-col gap-4 p-4 pt-0">
         <TabTitle title="Project Details" icon={<Presentation />} />
-        <ProjectInformationCard project={project} employees = {employees} />
+        <ProjectInformationCard project={project} employees={employees} />
         {/* Tasks Placeholder */}
-        <TaskPlaceholder 
-        employees={employees} 
-        projectId={id} 
-        onTaskCreated={handleTaskCreated}
+        <TaskPlaceholder
+          employees={employees}
+          projectId={id}
+          onTaskCreated={handleTaskCreated}
         />
 
-        <div>
-          There will be tree structure of tasks here.
-        </div>
-
-        
-
-        
+        <ProjectTree project={project} employees={employees} projectId={id} />
       </div>
     </div>
   );

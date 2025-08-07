@@ -78,7 +78,7 @@ const ProjectInformationCard = ({ project,employees }) => {
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-800">
             <CheckCircle className="w-4 h-4 text-gray-500" />
-            <span><strong>Tasks:</strong>{tasksCompleted} / {totalTasks}</span>
+            <span><strong>Tasks:</strong>{tasksCompleted} / {totalTasks }</span>
           </div>
           <div className="text-sm text-gray-800">
             <strong>Completion:</strong>{completionPercentage.toFixed(2)}%
