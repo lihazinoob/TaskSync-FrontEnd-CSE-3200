@@ -28,7 +28,9 @@ import { useEffect, useRef, useState } from "react";
 import DashboardHeader from "./common/DashboardHeader";
 import TabTitle from "./common/TabTitle";
 import { Button } from "../ui/button";
-import { updateUserStatus } from "@/service/api/user";
+import { updateUserStatus, uploadProfilePicture } from "@/service/api/user";
+import { uploadToCloudinary } from "@/service/utils/uploadToCloudinary";
+import { toast } from "sonner";
 
 // Component to display a field with icon, even if null
 const ProfileField = ({ icon: Icon, label, value }) => (
@@ -49,7 +51,7 @@ const Profile = () => {
     useState(false);
 
   // state to track the profile Image
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(user.profileImage || null);
 
   // refernece to the file input for profile image upload
   const fileInputRef = useRef(null);
@@ -60,11 +62,37 @@ const Profile = () => {
   }
 
   // function to handle the image upload
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async(event) => {
     const file = event.target.files[0];
-    console.log("Image file selected:", file);
-    const imageUrl = URL.createObjectURL(file);
-    setProfileImage(imageUrl);
+    
+    // If no file is selected, do nothing
+    if(!file) {
+      return;
+    }
+    
+    // view the image before uploading
+    const previewUrl = URL.createObjectURL(file);
+    
+
+    // upload the image to Cloudinary
+    try {
+      const cloudinaryResponse = await uploadToCloudinary(file);
+      // Update the user profile image with the uploaded image URL
+      await uploadProfilePicture(cloudinaryResponse.url);
+      setProfileImage(previewUrl);  
+      
+
+      
+    } catch (error) {
+      // revert to the original profile image if upload fails
+      setProfileImage(user.profileImage || null);
+      URL.revokeObjectURL(previewUrl);
+      console.error("Image upload failed:", error);
+      toast.error("Failed to upload profile image. Please try again.");
+      
+    }
+    
+
   }
 
   // state to track the formData of personal Information

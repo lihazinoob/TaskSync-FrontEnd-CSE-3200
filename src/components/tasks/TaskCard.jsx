@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { 
-  Calendar, 
-  User, 
-  Clock, 
-  Tag, 
-  CheckCircle, 
-  Circle, 
+import {
+  Calendar,
+  User,
+  Clock,
+  Tag,
+  CheckCircle,
+  Circle,
   MoreHorizontal,
   CalendarDays,
   UserCircle,
   Clock3,
   Check,
   CalendarDays as CalendarIcon,
-  User as UserIcon
+  User as UserIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,12 +43,12 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
     currentUserId: user?.id,
     isAssigned: user && task.assignedToId === user.id,
     taskStatus: task.status,
-    shouldShowMenu: user && task.assignedToId === user.id && !task.status
+    shouldShowMenu: user && task.assignedToId === user.id && !task.status,
   });
 
   const getStatusColor = (status) => {
-    return status 
-      ? "bg-emerald-100 text-emerald-700" 
+    return status
+      ? "bg-emerald-100 text-emerald-700"
       : "bg-amber-100 text-amber-700";
   };
 
@@ -66,14 +66,19 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
 
   // Function to get user name by ID
   const getUserName = (userId) => {
-    const user = users.find(user => user.id === userId);
+    const user = users.find((user) => user.id === userId);
     return user ? user.name || user.username || user.email : `User ${userId}`;
   };
 
   // Get user initials for avatar
   const getUserInitials = (userId) => {
     const userName = getUserName(userId);
-    return userName.split(' ').map(name => name[0]).join('').toUpperCase().slice(0, 2);
+    return userName
+      .split(" ")
+      .map((name) => name[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   // Check if current user is assigned to this task
@@ -99,13 +104,13 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
       const updatedTaskData = {
         ...task,
         status: true,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       console.log("Updating task:", task.id, "with data:", updatedTaskData);
 
       const response = await updateTask(task.id, updatedTaskData);
-      
+
       if (response.success) {
         toast.success("Task marked as complete!");
         console.log("Task updated successfully:", response.data);
@@ -128,7 +133,7 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   // Handle card click
   const handleCardClick = (e) => {
     // Don't open modal if clicking on the three dots menu
-    if (e.target.closest('[data-dropdown]')) {
+    if (e.target.closest("[data-dropdown]")) {
       return;
     }
     setIsDetailModalOpen(true);
@@ -136,12 +141,12 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
 
   return (
     <>
-      <Card 
+      <Card
         className={`
           group relative overflow-hidden transition-all duration-200 ease-in-out
           hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01]
           border border-border/50 bg-muted/40 cursor-pointer
-          ${task.status ? 'opacity-75' : 'opacity-100'}
+          ${task.status ? "opacity-75" : "opacity-100"}
           transform transition-all duration-500 ease-in-out
         `}
         onClick={handleCardClick}
@@ -152,7 +157,7 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
             <h4 className="font-medium text-sm line-clamp-1 flex-1 mr-2">
               {task.title}
             </h4>
-            
+
             {/* Three dots menu - only show if user is assigned to this task */}
             {isAssignedToCurrentUser() && !task.status && (
               <DropdownMenu>
@@ -168,13 +173,23 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleMarkAsComplete}
                     disabled={isUpdating}
                     className="flex items-center gap-2"
                   >
                     <Check className="w-3 h-3" />
                     {isUpdating ? "Updating..." : "Mark as Complete"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      alert("Feature coming soon!")
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Tag className="w-3 h-3" />
+                    Create SubTask
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -194,11 +209,13 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
                 <CalendarIcon className="w-3 h-3" />
                 <span>Due: {format(new Date(task.dueDate), "MMM dd")}</span>
                 {isOverdue() && (
-                  <span className="text-red-500 font-medium ml-1">(Overdue)</span>
+                  <span className="text-red-500 font-medium ml-1">
+                    (Overdue)
+                  </span>
                 )}
               </div>
             )}
-            
+
             {/* Assigned user */}
             {task.assignedToId && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -212,11 +229,13 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               {getStatusIcon(task.status)}
-              <Badge className={`text-xs px-2 py-0.5 ${getStatusColor(task.status)}`}>
+              <Badge
+                className={`text-xs px-2 py-0.5 ${getStatusColor(task.status)}`}
+              >
                 {getStatusLabel(task.status)}
               </Badge>
             </div>
-            
+
             <span className="text-xs text-muted-foreground">
               {format(new Date(task.createdAt), "MMM dd")}
             </span>
@@ -227,7 +246,8 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
             <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
               <Tag className="w-3 h-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">
-                {task.subTaskIds.length} subtask{task.subTaskIds.length !== 1 ? 's' : ''}
+                {task.subTaskIds.length} subtask
+                {task.subTaskIds.length !== 1 ? "s" : ""}
               </span>
             </div>
           )}

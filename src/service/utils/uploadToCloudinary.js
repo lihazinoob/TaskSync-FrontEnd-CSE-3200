@@ -19,6 +19,7 @@ export const uploadToCloudinary = async (file) => {
     throw new Error("Failed to upload file to Cloudinary.");
   }
   const data = await res.json();
+  
   return {
     url: data.secure_url, // URL of the uploaded image
     publicId: data.public_id, // Public ID of the uploaded image

@@ -36,3 +36,13 @@ export const getAllUsers = async () => {
     return { success: false, message };
   }
 };
+
+// function to uploda profile picture of a user
+export const uploadProfilePicture = async (profileImageURL) => {
+  console.log("Uploading profile picture from uploadProfilePicture function:", profileImageURL);
+
+  // will write the sending information to the backend as soon as the API is created by turzo.
+
+
+}
+
