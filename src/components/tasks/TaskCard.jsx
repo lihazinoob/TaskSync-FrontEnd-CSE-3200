@@ -29,11 +29,15 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { updateTask } from "@/service/api/task";
 import { toast } from "sonner";
 import TaskDetailModal from "./TaskDetalModal";
+import CreateSubTaskModal from "../subtask/CreateSubTaskModal";
 
 const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  const [isSubTaskCreateModalOpen, setIsSubTaskCreateModalOpen] =
+    useState(false);
 
   // Debug logging
   console.log("TaskCard Debug:", {
@@ -93,7 +97,8 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
   };
 
   // Handle mark as complete
-  const handleMarkAsComplete = async () => {
+  const handleMarkAsComplete = async (e) => {
+    e.stopPropagation(); // Prevent card click event
     if (task.status) {
       toast.info("Task is already completed!");
       return;
@@ -184,7 +189,7 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
                   <DropdownMenuItem
                     onClick={(event) => {
                       event.stopPropagation();
-                      alert("Feature coming soon!")
+                      setIsSubTaskCreateModalOpen(true);
                     }}
                     className="flex items-center gap-2"
                   >
@@ -261,6 +266,12 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
         task={task}
         users={users}
         onTaskUpdated={onTaskUpdated}
+      />
+
+      <CreateSubTaskModal
+        isOpen={isSubTaskCreateModalOpen}
+        onClose={() => setIsSubTaskCreateModalOpen(false)}
+        parentTask={task}
       />
     </>
   );
