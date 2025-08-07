@@ -37,6 +37,7 @@ import {
 import { useAuth } from "@/contexts/AuthProvider";
 import { fetchTaskById, updateTask } from "@/service/api/task";
 import { toast } from "sonner";
+import TaskCard from "./TaskCard";
 
 const TaskDetailModal = ({
   isOpen,
@@ -45,6 +46,7 @@ const TaskDetailModal = ({
   users = [],
   onTaskUpdated,
   projectId,
+  employees = [], // New prop to pass employees
 }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -394,41 +396,51 @@ const TaskDetailModal = ({
                   <p className="text-red-700 text-sm">{subTaskError}</p>
                 </div>
                 ):
+                
                 <div className="space-y-2">
                   {subTasks.map((subtask) => (
-                    <div 
-                      key={subtask.id} 
-                      className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-start gap-3">
-                        {getSubtaskStatusIcon(subtask.status)}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-gray-900 truncate">
-                              {subtask.title}
-                            </h4>
-                            {getSubtaskStatusBadge(subtask.status)}
-                          </div>
-                          <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                            {subtask.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            {subtask.dueDate && (
-                              <div className="flex items-center gap-1">
-                                <CalendarIcon className="w-3 h-3" />
-                                <span>Due: {format(new Date(subtask.dueDate), "MMM dd")}</span>
-                              </div>
-                            )}
-                            {subtask.assignedToId && (
-                              <div className="flex items-center gap-1">
-                                <UserIcon className="w-3 h-3" />
-                                <span>{getUserName(subtask.assignedToId)}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+
+                    <TaskCard
+                      key={subtask.id}
+                      task={subtask}
+                      users={users}
+                      employees={employees}
+                      onTaskUpdated={onTaskUpdated}
+                      projectId={projectId}
+                    />
+                    // <div 
+                    //   key={subtask.id} 
+                    //   className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                    // >
+                    //   <div className="flex items-start gap-3">
+                    //     {getSubtaskStatusIcon(subtask.status)}
+                    //     <div className="flex-1 min-w-0">
+                    //       <div className="flex items-center gap-2 mb-1">
+                    //         <h4 className="font-medium text-gray-900 truncate">
+                    //           {subtask.title}
+                    //         </h4>
+                    //         {getSubtaskStatusBadge(subtask.status)}
+                    //       </div>
+                    //       <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                    //         {subtask.description}
+                    //       </p>
+                    //       <div className="flex items-center gap-4 text-xs text-gray-500">
+                    //         {subtask.dueDate && (
+                    //           <div className="flex items-center gap-1">
+                    //             <CalendarIcon className="w-3 h-3" />
+                    //             <span>Due: {format(new Date(subtask.dueDate), "MMM dd")}</span>
+                    //           </div>
+                    //         )}
+                    //         {subtask.assignedToId && (
+                    //           <div className="flex items-center gap-1">
+                    //             <UserIcon className="w-3 h-3" />
+                    //             <span>{getUserName(subtask.assignedToId)}</span>
+                    //           </div>
+                    //         )}
+                    //       </div>
+                    //     </div>
+                    //   </div>
+                    // </div>
                   ))}
 
                 </div>

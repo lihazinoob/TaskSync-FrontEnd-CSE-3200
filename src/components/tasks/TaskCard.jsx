@@ -226,7 +226,11 @@ const TaskCard = ({ task, users = [], employees = [], onTaskUpdated,projectId })
             {task.assignedToId && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <UserIcon className="w-3 h-3" />
-                <span>{getUserName(task.assignedToId)}</span>
+                <span>{getUserName(task.assignedToId)}
+                {/* {employees.length} */}
+
+                  
+                </span>
               </div>
             )}
           </div>
@@ -267,7 +271,9 @@ const TaskCard = ({ task, users = [], employees = [], onTaskUpdated,projectId })
         task={task}
         users={users}
         onTaskUpdated={onTaskUpdated}
-        projectId={projectId} // Pass projectId to the modal
+        projectId={projectId}
+        employees={employees} // Pass employees to the modal 
+        // Pass projectId to the modal
       />
 
       <CreateSubTaskModal

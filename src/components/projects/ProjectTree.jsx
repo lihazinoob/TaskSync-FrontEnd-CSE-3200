@@ -2,6 +2,7 @@ import { fetchTaskById, fetchTasksByProject } from "@/service/api/task";
 import { sub } from "date-fns";
 import React from "react";
 import { toast } from "sonner";
+import TreeContainer from "./TreeContainer";
 
 const ProjectTree = ({ project, employees = [], projectId }) => {
   // state to track if anythong in on loading or on network call
@@ -10,11 +11,81 @@ const ProjectTree = ({ project, employees = [], projectId }) => {
   // state to show the error message if any error occurs
   const [error, setError] = React.useState(null);
 
+  // state to hold the tree structure
+  const [treeData, setTreeData] = React.useState(null);
+
   // helper function to get the employee name by ID
   const getEmployeeName = (employeeId) => {
     if (!employeeId) return "Unassigned";
-    const employee = employees.find(emp => emp.userId == employeeId);
+    const employee = employees.find((emp) => emp.userId == employeeId);
     return employee ? employee.username : "Unknown";
+  };
+
+  // Recursive call to fetch all the nested subtasks
+  const fetchNestedSubtasks = async (subTaskIds, depth = 0) => {
+    if (!subTaskIds || subTaskIds.length === 0) {
+      console.log(`No more subtasks at depth ${depth}. Stopping recursion.`);
+      return [];
+    }
+    console.log(`Fetching ${subTaskIds.length} subtasks at depth ${depth}:`, subTaskIds);
+    try {
+      const subtaskPromises = subTaskIds.map(subtaskId => {
+        console.log(`Fetching subtask with ID: ${subtaskId}`);
+        return fetchTaskById(subtaskId);
+      });
+
+
+      const subtaskResponses = await Promise.all(subtaskPromises);
+
+
+      const processedSubtasks = [];
+
+
+      for (let i = 0; i < subtaskResponses.length; i++) {
+        const response = subtaskResponses[i];
+        const subtaskId = subTaskIds[i];
+
+        if (response.success) {
+          const subtask = response.data;
+          console.log(`Subtask fetched successfully at depth ${depth}:`, subtask.title);
+
+          // Create the subtask object
+          const subtaskObj = {
+            id: subtask.id,
+            type: "subtask",
+            title: subtask.title,
+            description: subtask.description,
+            status: subtask.status,
+            dueDate: subtask.dueDate,
+            assignedToId: subtask.assignedToId,
+            assignedToName: getEmployeeName(subtask.assignedToId),
+            parentTaskId: subtask.parentId,
+            depth: depth,
+            subtasks: [] // This will hold nested subtasks
+          };
+
+          // ✅ Recursively fetch nested subtasks - will naturally stop when subTaskIds is empty
+          if (subtask.subTaskIds && subtask.subTaskIds.length > 0) {
+            console.log(`Subtask "${subtask.title}" has ${subtask.subTaskIds.length} nested subtasks. Going deeper...`);
+            subtaskObj.subtasks = await fetchNestedSubtasks(subtask.subTaskIds, depth + 1);
+          } else {
+            console.log(`Subtask "${subtask.title}" has no nested subtasks. This branch ends here.`);
+          }
+
+          processedSubtasks.push(subtaskObj);
+
+        } else {
+          console.error(`Failed to fetch subtask ${subtaskId}:`, response.message);
+        }
+      }
+
+
+      console.log(`Completed processing ${processedSubtasks.length} subtasks at depth ${depth}`);
+      return processedSubtasks;
+    } catch (error) {
+      console.error(`Error fetching subtasks at depth ${depth}:`, error);
+      return [];
+    }
   };
 
   // function to build a tree strucuture
@@ -32,18 +103,17 @@ const ProjectTree = ({ project, employees = [], projectId }) => {
       }
       const tasks = tasksResponse.data;
       console.log("Tasks fetched successfully in tree structure:", tasks);
-      
+
       // Now call the function fetchTaskById in task.js and fetch all the subtasks of each task
 
       const taskWithSubtasks = [];
 
-
-      for(const task of tasks) {
+      for (const task of tasks) {
         // console.log(`Processing task: ${task.title} (ID: ${task.id})`);
 
         // create the task object
         const taskObj = {
-          id:task.id,
+          id: task.id,
           type: "task",
           title: task.title,
           description: task.description,
@@ -54,70 +124,36 @@ const ProjectTree = ({ project, employees = [], projectId }) => {
           assignedBy: task.assignedById,
           assignedByName: getEmployeeName(task.assignedById),
           subtasks: [],
-      
+        };
+
+        if (task.subTaskIds && task.subTaskIds.length > 0) {
+          console.log(`Task "${task.title}" has ${task.subTaskIds.length} direct subtasks. Starting recursive fetch...`);
+          taskObj.subtasks = await fetchNestedSubtasks(task.subTaskIds, 0);
+          console.log(`Completed recursive fetch for task "${task.title}"`);
+        } else {
+          console.log(`Task "${task.title}" has no subtasks.`);
         }
 
-        // console.log("The taskObject is:", taskObj); 
-
-        // If task has subTaskIDs ,fetch each subtask by ID
-        if(task.subTaskIds && task.subTaskIds.length > 0) {
-          // console.log(`Task ${task.title} has ${task.subTaskIds.length} subtasks:`, task.subTaskIds);
-
-          // Fetch all the subTasks in parallel
-          const subTasksPromises = task.subTaskIds.map(subTaskId => {
-            // console.log(`Fetching subtask with ID: ${subTaskId}`);
-            return fetchTaskById(subTaskId);
-          });
-          try {
-            const subTaskResponses = await Promise.all(subTasksPromises);
-
-            // Now Process each subtask response
-
-            subTaskResponses.forEach((subtaskResponse, index) => {
-              if (subtaskResponse.success) {
-                const subtask = subtaskResponse.data;
-                console.log(`Subtask fetched successfully:`, subtask);
-                
-                taskObj.subtasks.push({
-                  id: subtask.id,
-                  type: 'subtask',
-                  title: subtask.title,
-                  description: subtask.description,
-                  status: subtask.status,
-                  dueDate: subtask.dueDate,
-                  assignedToId: subtask.assignedToId,
-                  assignedToName: getEmployeeName(subtask.assignedToId),
-                  parentTaskId: task.id
-                });
-
-                console.log("TaskObject", taskObj);
-              } else {
-                console.error(`Failed to fetch subtask ${task.subTaskIds[index]}:`, subtaskResponse.message);
-              }
-            });
-
-          } catch (subTaskError) {
-            console.error(`Error fetching subtasks for task ${task.id}:`, subTaskError);
-          }
-        }
+        
+        
 
         taskWithSubtasks.push(taskObj);
 
         console.log("Complete task object with subtasks:", taskWithSubtasks);
-
-
-
       }
-      
 
-    
-      
-      
-      
+      // create complete tree structure
+      const treeStrcture = {
+        id: projectId,
+        type: "project",
+        title: project.name,
+        description: project.description,
+        totalTasks: tasks.length,
+        tasks: taskWithSubtasks,
+      };
 
-      
-      
-    
+      console.log("Complete tree structure built:", treeStrcture);
+      setTreeData([treeStrcture]);
     } catch (error) {
       setError("An error occurred while fetching tasks.", error);
       toast.error("An error occurred while fetching tasks.");
@@ -126,10 +162,27 @@ const ProjectTree = ({ project, employees = [], projectId }) => {
     }
   };
 
+  // Handle node clicks
+  const handleNodeClick = (node) => {
+    console.log("Node clicked:", node);
+    switch (node.type) {
+      case "project":
+        toast.info(`Project: ${node.name}`);
+        break;
+      case "task":
+        toast.info(`Task: ${node.title}`);
+        // You could open TaskDetailModal here
+        break;
+      case "subtask":
+        toast.info(`Subtask: ${node.title}`);
+        break;
+    }
+  };
+
   // useEffect to build the tree structure when the component mounts
   React.useEffect(() => {
     buildTreeStructure();
-  }, [projectId, employees]);
+  }, [projectId, employees, project]);
 
   // if loading is true, show a loading spinner
   if (loading) {
@@ -158,16 +211,14 @@ const ProjectTree = ({ project, employees = [], projectId }) => {
   }
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Project Task Tree</h2>
-      <div className="p-4">
-        <div className="space-y-2">
-          <h3 className="text-md font-semibold">
-            {project.name} ({project.totalTasks +  1 || 0})
-          </h3>
-        </div>
-      </div>
-    </div>
+    <TreeContainer
+      title="Project Structure"
+      data={treeData}
+      onNodeClick={handleNodeClick}
+      onRefresh={buildTreeStructure}
+      expandControls={true}
+      className="w-full"
+    />
   );
 };
 
