@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import TaskDetailModal from "./TaskDetalModal";
 import CreateSubTaskModal from "../subtask/CreateSubTaskModal";
 
-const TaskCard = ({ task, users = [], employees = [], onTaskUpdated }) => {
+const TaskCard = ({ task, users = [], employees = [], onTaskUpdated,projectId }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -267,6 +267,7 @@ const TaskCard = ({ task, users = [], employees = [], onTaskUpdated }) => {
         task={task}
         users={users}
         onTaskUpdated={onTaskUpdated}
+        projectId={projectId} // Pass projectId to the modal
       />
 
       <CreateSubTaskModal
@@ -274,6 +275,7 @@ const TaskCard = ({ task, users = [], employees = [], onTaskUpdated }) => {
         onClose={() => setIsSubTaskCreateModalOpen(false)}
         parentTask={task}
         employees={employees}
+        projectId={projectId} // Pass projectId to the modal
       />
     </>
   );

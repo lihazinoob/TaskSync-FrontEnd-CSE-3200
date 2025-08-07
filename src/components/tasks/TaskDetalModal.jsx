@@ -43,7 +43,8 @@ const TaskDetailModal = ({
   onClose, 
   task, 
   users = [], 
-  onTaskUpdated 
+  onTaskUpdated,
+  projectId
 }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);

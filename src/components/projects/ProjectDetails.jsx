@@ -124,7 +124,8 @@ const ProjectDetails = () => {
         <TaskPlaceholder 
         employees={employees} 
         projectId={id} 
-        onTaskCreated={handleTaskCreated} />
+        onTaskCreated={handleTaskCreated}
+        />
 
         
 

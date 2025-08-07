@@ -119,6 +119,7 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
                       users={users}
                       employees={employees}
                       onTaskUpdated={handleTaskUpdated}
+                      projectId={projectId}
                     />
                   ))
                 ) : (

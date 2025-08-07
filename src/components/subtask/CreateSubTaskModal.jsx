@@ -20,16 +20,24 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { set } from "date-fns";
+import { format, set } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { Textarea } from "../ui/textarea";
+import { useAuth } from "@/contexts/AuthProvider";
+
+import { createSubTask } from "@/service/api/subtask";
+import { toast } from "sonner";
 
 const CreateSubTaskModal = ({
   isOpen,
   onClose,
   parentTask,
   employees = [],
+  projectId,
 }) => {
+  const { user } = useAuth();
+
+
   // state to manage the input data of the form
   const [createSubTaskFormData, setCreateSubTaskFormData] = React.useState({
     title: "",
@@ -43,33 +51,71 @@ const CreateSubTaskModal = ({
   // state to show loader when creating subtask
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  console.log("In Create Sub Task Modal", employees);
+  const createSubTaskWithFormattedData = async (
+    formData,
+    projectId,
+    currentUser
+  ) => {
+    const now = new Date().toISOString();
+    const subTaskPayLoad = {
+      title: formData.title,
+      description: formData.description,
+      dueDate: formData.dueDate
+        ? format(formData.dueDate, "yyyy-MM-dd'T'HH:mm:ss")
+        : null,
+      status: false,
+      createdAt: now,
+      updatedAt: now,
+      assignedById: currentUser?.id,
+      assignedToId:
+        formData.assignee === "unassigned" ? null : parseInt(formData.assignee),
+      parentId: null,
+      project: parseInt(projectId),
+    };
+
+    console.log("Subtask Payload:", subTaskPayLoad);
+
+    // Call the API to create the subtask
+
+    const response = await createSubTask(subTaskPayLoad, parentTask.id);
+    return response;
+  };
 
   // function to handle the form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setCreateSubTaskFormData({});
-    setFormErrors({});
 
-    // Here the actual sending data to the server will happen
-    alert("Subtask created!");
-    console.log("Subtask created with data:", createSubTaskFormData);
-    onClose(); // Close the modal after submission
-
-    setIsSubmitting(false);
+    try {
+      const respone = await createSubTaskWithFormattedData(
+        createSubTaskFormData,
+        projectId,
+        user
+      );
+      if (respone.success) {
+        toast.success("Subtask created successfully!");
+      } else {
+        toast.error(respone.message || "Failed to create subtask.");
+      }
+    } catch (error) {
+      toast.error(error.message || "An error occurred while creating subtask.");
+    } finally {
+      setCreateSubTaskFormData({});
+      setFormErrors({});
+      onClose(); // Close the modal after submission
+      setIsSubmitting(false);
+    }
   };
 
   // Helper function to display the selected user name
   const displaySelectedUser = (value) => {
-    if(value === "unassigned") {
-      return "Unassigned"
+    if (value === "unassigned") {
+      return "Unassigned";
+    } else {
+      const employee = employees.find((emp) => emp.userId == value);
+      return employee ? employee.username : value;
     }
-    else{
-      const employee = employees.find(emp => emp.userId == value);
-      return employee ? employee.username : value
-    }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
