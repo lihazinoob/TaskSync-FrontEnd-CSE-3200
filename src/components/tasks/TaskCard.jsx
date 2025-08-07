@@ -272,6 +272,7 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
         isOpen={isSubTaskCreateModalOpen}
         onClose={() => setIsSubTaskCreateModalOpen(false)}
         parentTask={task}
+        
       />
     </>
   );
