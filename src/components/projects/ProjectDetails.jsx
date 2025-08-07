@@ -83,9 +83,8 @@ const ProjectDetails = () => {
   };
   
 
-  console.log("Project companyId:", project?.companyId);
-  console.log("Project state:", project);
-  console.log("Employees state:", employees);
+ 
+  
 
 
   if (loading) {

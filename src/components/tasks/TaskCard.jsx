@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import TaskDetailModal from "./TaskDetalModal";
 import CreateSubTaskModal from "../subtask/CreateSubTaskModal";
 
-const TaskCard = ({ task, users = [], onTaskUpdated }) => {
+const TaskCard = ({ task, users = [], employees = [], onTaskUpdated }) => {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -48,6 +48,7 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
     isAssigned: user && task.assignedToId === user.id,
     taskStatus: task.status,
     shouldShowMenu: user && task.assignedToId === user.id && !task.status,
+    employees:employees
   });
 
   const getStatusColor = (status) => {
@@ -272,7 +273,7 @@ const TaskCard = ({ task, users = [], onTaskUpdated }) => {
         isOpen={isSubTaskCreateModalOpen}
         onClose={() => setIsSubTaskCreateModalOpen(false)}
         parentTask={task}
-        
+        employees={employees}
       />
     </>
   );

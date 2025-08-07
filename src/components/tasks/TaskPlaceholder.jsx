@@ -117,6 +117,7 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
                       key={task.id} 
                       task={task} 
                       users={users}
+                      employees={employees}
                       onTaskUpdated={handleTaskUpdated}
                     />
                   ))
@@ -147,6 +148,7 @@ const TaskPlaceholder = ({ employees = [], projectId }) => {
                       key={task.id} 
                       task={task} 
                       users={users}
+                      employees={employees}
                       onTaskUpdated={handleTaskUpdated}
                     />
                   ))
