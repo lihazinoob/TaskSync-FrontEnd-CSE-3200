@@ -36,3 +36,15 @@ export const updateTask = async (taskId, taskData) => {
     return { success: false, message };
   }
 };
+
+// function to fetch a task by ID
+export const fetchTaskById = async (taskId) => {
+  try {
+    const response = await axiosInstance.get(`/api/tasks/${taskId}`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    const message =
+      error.response?.data?.message || "Failed to fetch task.";
+    return { success: false, message };
+  }
+};

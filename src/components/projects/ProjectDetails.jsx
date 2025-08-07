@@ -127,6 +127,10 @@ const ProjectDetails = () => {
         onTaskCreated={handleTaskCreated}
         />
 
+        <div>
+          There will be tree structure of tasks here.
+        </div>
+
         
 
         
