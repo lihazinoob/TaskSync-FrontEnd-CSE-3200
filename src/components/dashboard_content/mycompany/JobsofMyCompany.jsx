@@ -1,46 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { Bookmark, Building2, MapPin, Clock, DollarSign, Calendar } from "lucide-react";
+import { Bookmark, Building2, MapPin, Clock, DollarSign, Calendar, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { fetchAllJobs } from "@/service/api/jobs";
+import { fetchJobsByCompany } from "@/service/api/jobs";
 
-
-
-const RecentJobs = () => {
+const JobsofMyCompany = ({ selectedCompany }) => {
   const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-   const loadJobs = async () => {
+  // Load jobs for the selected company
+  const loadCompanyJobs = async () => {
+    if (!selectedCompany?.id) {
+      setJobs([]);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       
-      console.log("Fetching jobs from API...");
-      const response = await fetchAllJobs();
+      console.log("Fetching jobs for company:", selectedCompany.id);
+      const response = await fetchJobsByCompany(selectedCompany.id);
       
       if (response.success) {
         setJobs(response.data);
-        console.log("Jobs fetched successfully:", response.data);
+        console.log("Company jobs fetched successfully:", response.data);
       } else {
-        setError(response.message || "Failed to fetch jobs");
-        console.error("Failed to fetch jobs:", response.message);
+        setError(response.message || "Failed to fetch company jobs");
+        console.error("Failed to fetch company jobs:", response.message);
       }
     } catch (err) {
-      console.error("Error fetching jobs:", err);
-      setError("Error fetching jobs");
-      toast.error("Failed to load recent jobs");
+      console.error("Error fetching company jobs:", err);
+      setError("Error fetching company jobs");
+      toast.error("Failed to load company jobs");
     } finally {
       setLoading(false);
     }
   };
 
+  // Load jobs when selectedCompany changes
   useEffect(() => {
-    loadJobs();
-  }, []);
-
+    loadCompanyJobs();
+  }, [selectedCompany?.id]);
 
   // Format job type for display
   const formatJobType = (jobType) => {
@@ -105,10 +109,39 @@ const RecentJobs = () => {
     }
   };
 
+  // Handle job actions
+  const handleEditJob = (job) => {
+    console.log("Edit job:", job);
+    toast.info("Edit job functionality coming soon!");
+  };
+
+  const handleDeleteJob = (job) => {
+    console.log("Delete job:", job);
+    toast.info("Delete job functionality coming soon!");
+  };
+
+  // No company selected
+  if (!selectedCompany) {
+    return (
+      <div className="rounded-xl bg-card p-6 h-full flex flex-col">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Building2 className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+            <p className="text-lg font-medium text-muted-foreground mb-2">Select a company</p>
+            <p className="text-sm text-muted-foreground">Choose a company from the list to view its job postings</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
   if (loading) {
     return (
       <div className="rounded-xl bg-card p-5 h-full flex flex-col">
-        <h3 className="text-lg font-semibold mb-4">Recent Jobs</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Jobs for {selectedCompany.companyName}</h3>
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
@@ -119,17 +152,20 @@ const RecentJobs = () => {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="rounded-xl bg-card p-5 h-full flex flex-col">
-        <h3 className="text-lg font-semibold mb-4">Recent Jobs</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Jobs for {selectedCompany.companyName}</h3>
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-sm text-red-500 mb-2">{error}</p>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={fetchJobs}
+              onClick={loadCompanyJobs}
               className="text-xs"
             >
               Try Again
@@ -143,10 +179,21 @@ const RecentJobs = () => {
   return (
     <div className="rounded-xl bg-card p-5 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Recent Jobs</h3>
-        <span className="text-xs text-muted-foreground">
-          {jobs.length} job{jobs.length !== 1 ? 's' : ''} available
-        </span>
+        <div>
+          <h3 className="text-lg font-semibold">Jobs for {selectedCompany.companyName}</h3>
+          <p className="text-sm text-muted-foreground">
+            {jobs.length} job{jobs.length !== 1 ? 's' : ''} posted
+          </p>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={loadCompanyJobs}
+          disabled={loading}
+          className="text-xs"
+        >
+          {loading ? "Loading..." : "Refresh"}
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
@@ -154,7 +201,7 @@ const RecentJobs = () => {
           jobs.map((job) => (
             <div
               key={job.id}
-              className="p-4 bg-muted/40 rounded-lg border border-border/50 hover:border-border/80 transition-colors cursor-pointer"
+              className="p-4 bg-muted/40 rounded-lg border border-border/50 hover:border-border/80 transition-colors"
             >
               {/* Job Header */}
               <div className="flex justify-between items-start mb-3">
@@ -162,11 +209,11 @@ const RecentJobs = () => {
                   <h4 className="font-medium text-base mb-1 line-clamp-1">
                     {job.jobTitle}
                   </h4>
-                  
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {job.jobDescription}
+                  </p>
                 </div>
-                <button className="text-muted-foreground hover:text-primary ml-2 flex-shrink-0">
-                  <Bookmark size={16} />
-                </button>
+                
               </div>
 
               {/* Job Details */}
@@ -200,7 +247,7 @@ const RecentJobs = () => {
                   <div className="flex flex-wrap gap-1.5">
                     {job.skills.slice(0, 3).map((skillItem, index) => (
                       <Badge
-                        key={index}
+                        key={skillItem.skill.skillId || index}
                         variant="outline"
                         className={`text-xs px-2 py-0.5 ${getProficiencyColor(skillItem.proficiencyLevel)}`}
                       >
@@ -232,28 +279,16 @@ const RecentJobs = () => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <Building2 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground mb-2">No jobs available</p>
-              <p className="text-xs text-muted-foreground">Check back later for new opportunities</p>
+              <p className="text-sm text-muted-foreground mb-2">No jobs posted yet</p>
+              <p className="text-xs text-muted-foreground">
+                Create your first job posting for {selectedCompany.companyName}
+              </p>
             </div>
           </div>
         )}
       </div>
-
-      {/* View All Jobs Button */}
-      {jobs.length > 0 && (
-        <Button 
-          variant="ghost" 
-          className="mt-4 text-sm font-medium self-center hover:underline"
-          onClick={() => {
-            // TODO: Navigate to jobs page
-            console.log("Navigate to all jobs");
-          }}
-        >
-          Browse all jobs ({jobs.length})
-        </Button>
-      )}
     </div>
   );
 };
 
-export default RecentJobs;
+export default JobsofMyCompany;
