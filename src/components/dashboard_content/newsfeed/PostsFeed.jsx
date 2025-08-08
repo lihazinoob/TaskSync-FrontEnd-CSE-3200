@@ -96,7 +96,7 @@ const PostsFeed = ({ refreshTrigger }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-2/3 mx-auto">
       {/* Refresh button */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Recent Posts</h3>
