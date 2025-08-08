@@ -2,20 +2,12 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Globe, Users, Lock } from 'lucide-react';
+import { MoreHorizontal, Globe, Users, Lock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import CommentsSection from './CommentsSection';
 
 const PostCard = ({ post }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.likesCount || 0);
   const [showFullContent, setShowFullContent] = useState(false);
-
-  // Handle like toggle
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-    // TODO: Implement API call to like/unlike post
-  };
 
   // Format post date
   const formatPostDate = (dateString) => {
@@ -115,34 +107,11 @@ const PostCard = ({ post }) => {
           </div>
         )}
 
-        {/* Post Actions */}
-        <div className="px-4 py-3 border-t border-border/60">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <button
-                onClick={handleLike}
-                className={`flex items-center gap-2 text-sm transition-colors ${
-                  isLiked 
-                    ? 'text-red-500 hover:text-red-600' 
-                    : 'text-muted-foreground hover:text-primary'
-                }`}
-              >
-                <Heart size={18} className={isLiked ? 'fill-current' : ''} />
-                <span>{likesCount}</span>
-              </button>
-              
-              <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                <MessageCircle size={18} />
-                <span>{post.commentsCount || 0}</span>
-              </button>
-              
-              <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                <Share2 size={18} />
-                <span>{post.sharesCount || 0}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Comments Section */}
+        <CommentsSection 
+          postId={post.id} 
+          initialCommentsCount={post.commentsCount || 0}
+        />
       </CardContent>
     </Card>
   );
