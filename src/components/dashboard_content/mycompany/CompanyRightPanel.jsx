@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { toast } from "sonner";
 import { sendInvitationtoPeopletoJoinCompany } from "@/service/api/company";
 import CompanyemployeeList from "./CompanyemployeeList";
+import JobSection from "./JobSection";
 
 
 const CompanyRightPanel = ({ selectedCompany }) => {
@@ -92,8 +93,7 @@ const CompanyRightPanel = ({ selectedCompany }) => {
         </TabsContent>
 
         <TabsContent value="jobs" className="space-y-4">
-          <h2 className="text-xl font-semibold">Jobs</h2>
-          <p>Jobs listings will be displayed here</p>
+          <JobSection selectedCompany={selectedCompany} />
         </TabsContent>
 
         <TabsContent value="applications" className="space-y-4">

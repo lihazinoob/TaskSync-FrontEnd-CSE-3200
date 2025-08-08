@@ -59,41 +59,45 @@ const Profile = () => {
   // function to handle the click on the plus icon to open file input
   const handlePlusClick = () => {
     fileInputRef.current?.click();
-  }
+  };
 
   // function to handle the image upload
-  const handleImageUpload = async(event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    
+
     // If no file is selected, do nothing
-    if(!file) {
+    if (!file) {
       return;
     }
-    
+
     // view the image before uploading
     const previewUrl = URL.createObjectURL(file);
-    
 
     // upload the image to Cloudinary
     try {
       const cloudinaryResponse = await uploadToCloudinary(file);
       // Update the user profile image with the uploaded image URL
-      await uploadProfilePicture(cloudinaryResponse.url);
-      setProfileImage(previewUrl);  
-      
-
-      
+      const profileImageUploadResponse = await uploadProfilePicture(
+        cloudinaryResponse.url
+      );
+      if (profileImageUploadResponse.success) {
+        setProfileImage(previewUrl);
+        toast.success(profileImageUploadResponse.message);
+      }
+      else {
+        // If upload fails, revert to the original profile image
+        setProfileImage(user.profileImage || null);
+        URL.revokeObjectURL(previewUrl);
+        toast.error(profileImageUploadResponse.message);
+      }
     } catch (error) {
       // revert to the original profile image if upload fails
       setProfileImage(user.profileImage || null);
       URL.revokeObjectURL(previewUrl);
       console.error("Image upload failed:", error);
       toast.error("Failed to upload profile image. Please try again.");
-      
     }
-    
-
-  }
+  };
 
   // state to track the formData of personal Information
   const [personalInformationFormData, setPersonalInformationFormData] =

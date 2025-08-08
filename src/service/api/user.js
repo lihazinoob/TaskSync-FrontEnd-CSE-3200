@@ -43,6 +43,21 @@ export const uploadProfilePicture = async (profileImageURL) => {
 
   // will write the sending information to the backend as soon as the API is created by turzo.
 
+  try {
+    await axiosInstance.put("/api/users/dp",{
+      profileImage:profileImageURL
+    });
+    return {
+      success:true,
+      message: "Profile picture uploaded successfully",
+    }
+  } catch (error) {
+    return{
+      success:false,
+      message: error.response?.data?.message || "Failed to upload profile picture."
+    }
+  }
+
 
 }
 
