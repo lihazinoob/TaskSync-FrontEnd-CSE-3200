@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Loader2, MessageSquare } from 'lucide-react';
-import { fetchAllPosts } from '@/service/api/posts';
+import { fetchAllPostsWithUserInfo } from '@/service/api/posts'; // ✅ Import the new function
 import { toast } from 'sonner';
 import PostCard from './PostCard';
 
@@ -10,18 +10,18 @@ const PostsFeed = ({ refreshTrigger }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load posts from API
+  // Load posts from API with user information
   const loadPosts = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching posts from API...');
-      const response = await fetchAllPosts();
+      console.log('Fetching posts with user info from API...');
+      const response = await fetchAllPostsWithUserInfo(); // ✅ Use the new function
       
       if (response.success) {
         setPosts(response.data);
-        console.log('Posts fetched successfully:', response.data);
+        console.log('Posts with user info fetched successfully:', response.data);
       } else {
         setError(response.message || 'Failed to fetch posts');
         console.error('Failed to fetch posts:', response.message);
