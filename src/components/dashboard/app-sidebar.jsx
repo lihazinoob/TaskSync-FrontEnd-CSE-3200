@@ -70,11 +70,7 @@ const data = {
           url: "/ai/roadmap-generator",
           isActive: false,
         },
-        {
-          title: "Interview",
-          url: "/ai/interview",
-          isActive: false,
-        },
+        
       ],
     },
     {

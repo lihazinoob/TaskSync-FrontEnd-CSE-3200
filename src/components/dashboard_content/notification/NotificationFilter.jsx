@@ -31,7 +31,7 @@ const NotificationFilter = ({
         </TabsList>
       </Tabs>
 
-      <div className="flex items-center gap-2 w-full sm:w-auto">
+      {/* <div className="flex items-center gap-2 w-full sm:w-auto">
         <Filter className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground hidden sm:inline">
           Filter by:
@@ -53,7 +53,7 @@ const NotificationFilter = ({
             <span className="hidden md:inline">Users</span>
           </ToggleGroupItem>
         </ToggleGroup>
-      </div>
+      </div> */}
     </div>
   );
 };

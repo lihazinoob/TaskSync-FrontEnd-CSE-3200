@@ -611,7 +611,7 @@ const Profile = () => {
           </Card>
 
           {/* Projects & Performance */}
-          <Card className="lg:col-span-12">
+          {/* <Card className="lg:col-span-12">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
                 <Layers className="h-5 w-5" /> Projects & Performance
@@ -640,7 +640,7 @@ const Profile = () => {
                 />
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
 
