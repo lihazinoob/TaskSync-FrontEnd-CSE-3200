@@ -1,80 +1,126 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Brain, Lightbulb, Rocket, Target } from "lucide-react";
 
 const RoadmapForm = ({ onSubmit, isGenerating }) => {
-  const [goal, setGoal] = useState("");
-  const [timeframe, setTimeframe] = useState("3 months");
-  const [experience, setExperience] = useState("beginner");
+  const [topic, setTopic] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ goal, timeframe, experience });
+    if (topic.trim()) {
+      onSubmit({ topic: topic.trim() });
+    }
+  };
+
+  const predefinedTopics = [
+    "Learn React and Laravel",
+    "Master Full Stack Development",
+    "Data Science with Python",
+    "DevOps and Cloud Computing",
+    "Mobile App Development",
+    "Machine Learning Fundamentals"
+  ];
+
+  const handlePredefinedClick = (predefinedTopic) => {
+    setTopic(predefinedTopic);
   };
 
   return (
     <div className="bg-card border rounded-xl p-6 h-full">
-      <h2 className="text-xl font-semibold mb-4">Create Your Roadmap</h2>
-      <p className="text-muted-foreground mb-4">
-        Generate a personalized career development roadmap based on your goals,
-        timeframe, and current experience level.
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-2">
-          <label htmlFor="goal" className="block text-sm font-medium">
-            What skill or technology do you want to master?
-          </label>
-          <input
-            id="goal"
-            type="text"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            placeholder="e.g. React, UX Design, Data Science"
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <Brain className="h-5 w-5 text-primary" />
         </div>
+        <div>
+          <h2 className="text-xl font-semibold">AI Roadmap Generator</h2>
+          <p className="text-sm text-muted-foreground">
+            Generate personalized learning paths
+          </p>
+        </div>
+      </div>
 
-        <div className="space-y-2">
-          <label htmlFor="timeframe" className="block text-sm font-medium">
-            Timeframe
-          </label>
-          <select
-            id="timeframe"
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md"
+      <div className="space-y-6">
+        {/* Main Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-3">
+            <Label htmlFor="topic" className="text-base font-medium flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              What do you want to learn?
+            </Label>
+            <Textarea
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g., Learn React and Laravel, Master Data Science, Full Stack Development..."
+              className="min-h-[100px] resize-none"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              Be specific about technologies, frameworks, or skills you want to master
+            </p>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isGenerating || !topic.trim()}
+            className="w-full h-11 text-base font-medium"
+            size="lg"
           >
-            <option value="1 month">1 month</option>
-            <option value="3 months">3 months</option>
-            <option value="6 months">6 months</option>
-            <option value="1 year">1 year</option>
-          </select>
+            {isGenerating ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Generating Roadmap...
+              </>
+            ) : (
+              <>
+                <Rocket className="mr-2 h-4 w-4" />
+                Generate AI Roadmap
+              </>
+            )}
+          </Button>
+        </form>
+
+        {/* Predefined Topics */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Lightbulb className="h-4 w-4" />
+            Popular Learning Paths
+          </div>
+          <div className="grid gap-2">
+            {predefinedTopics.map((predefinedTopic, index) => (
+              <button
+                key={index}
+                onClick={() => handlePredefinedClick(predefinedTopic)}
+                className="text-left p-3 bg-muted/50 hover:bg-muted rounded-lg transition-colors text-sm border border-transparent hover:border-border"
+                disabled={isGenerating}
+              >
+                {predefinedTopic}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="experience" className="block text-sm font-medium">
-            Experience Level
-          </label>
-          <select
-            id="experience"
-            value={experience}
-            onChange={(e) => setExperience(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md"
-          >
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
+        {/* Features */}
+        <div className="space-y-3 pt-4 border-t">
+          <h4 className="font-medium text-sm">What you'll get:</h4>
+          <div className="space-y-2">
+            {[
+              "Structured learning phases",
+              "Step-by-step actionable tasks",
+              "Required tools and prerequisites",
+              "Milestone tracking system"
+            ].map((feature, index) => (
+              <div key={index} className="flex items-start gap-2 text-xs text-muted-foreground">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 flex-shrink-0" />
+                <span>{feature}</span>
+              </div>
+            ))}
+          </div>
         </div>
-
-        <button
-          type="submit"
-          disabled={isGenerating || !goal.trim()}
-          className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md font-medium disabled:opacity-50 mt-6"
-        >
-          {isGenerating ? "Generating..." : "Generate Roadmap"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 };

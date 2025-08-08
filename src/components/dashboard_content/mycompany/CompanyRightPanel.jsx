@@ -76,8 +76,8 @@ const CompanyRightPanel = ({ selectedCompany }) => {
         <TabsList className="mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="jobs">Jobs</TabsTrigger>
-          <TabsTrigger value="applications">Applications</TabsTrigger>
-          <TabsTrigger value="statistics">Statistics</TabsTrigger>
+          {/* <TabsTrigger value="applications">Applications</TabsTrigger>
+          <TabsTrigger value="statistics">Statistics</TabsTrigger> */}
           <TabsTrigger value="people">People</TabsTrigger>
         </TabsList>
 
@@ -96,15 +96,15 @@ const CompanyRightPanel = ({ selectedCompany }) => {
           <JobSection selectedCompany={selectedCompany} />
         </TabsContent>
 
-        <TabsContent value="applications" className="space-y-4">
+        {/* <TabsContent value="applications" className="space-y-4">
           <h2 className="text-xl font-semibold">Applications</h2>
           <p>Job applications will be displayed here</p>
-        </TabsContent>
+        </TabsContent> */}
 
-        <TabsContent value="statistics" className="space-y-4">
+        {/* <TabsContent value="statistics" className="space-y-4">
           <h2 className="text-xl font-semibold">Statistics</h2>
           <p>Company statistics will be displayed here</p>
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="people" className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">People</h2>

@@ -1,58 +1,38 @@
 import { Brain } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import DashboardHeader from "./common/DashboardHeader";
 import TabTitle from "./common/TabTitle";
 import RoadmapContent from "./roadmap/RoadmapContent";
 import RoadmapForm from "./roadmap/RoadmapForm";
+import { generateRoadmap } from "@/service/api/roadmap";
 
 const Roadmap = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [roadmapData, setRoadmapData] = useState(null);
 
-  const handleFormSubmit = (formData) => {
+  const handleFormSubmit = async (formData) => {
     setIsGenerating(true);
 
-    // Simulate API call to generate roadmap
-    setTimeout(() => {
-      setRoadmapData({
-        title: `${formData.goal} Roadmap (${formData.timeframe})`,
-        description: `A personalized learning path for ${formData.experience} level learners to master ${formData.goal} within ${formData.timeframe}.`,
-        timeframe: formData.timeframe,
-        milestones: [
-          {
-            title: "Foundation Building",
-            duration: "2 weeks",
-            tasks: [
-              "Learn core concepts and terminology",
-              "Set up development environment",
-              "Complete introductory tutorials",
-              "Build a simple project",
-            ],
-          },
-          {
-            title: "Core Skills Development",
-            duration: "4 weeks",
-            tasks: [
-              "Master fundamental techniques",
-              "Study best practices and patterns",
-              "Build intermediate projects",
-              "Join community forums and groups",
-            ],
-          },
-          {
-            title: "Advanced Application",
-            duration: "6 weeks",
-            tasks: [
-              "Learn advanced topics and tools",
-              "Contribute to open source projects",
-              "Build a comprehensive portfolio project",
-              "Prepare for technical interviews",
-            ],
-          },
-        ],
-      });
+    try {
+      console.log("Generating roadmap for:", formData.topic);
+      
+      const response = await generateRoadmap(formData.topic);
+      
+      if (response.success) {
+        setRoadmapData(response.data);
+        toast.success("Roadmap generated successfully!");
+        console.log("Generated roadmap:", response.data);
+      } else {
+        toast.error(response.message || "Failed to generate roadmap");
+        console.error("Failed to generate roadmap:", response.message);
+      }
+    } catch (error) {
+      console.error("Error generating roadmap:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   const resetRoadmap = () => {
@@ -61,12 +41,12 @@ const Roadmap = () => {
 
   return (
     <>
-      <DashboardHeader title="Roadmap" breadcrumb="Roadmap Generator" />
+      <DashboardHeader title="Roadmap" breadcrumb="AI Career Roadmap Generator" />
       <div className="flex flex-col gap-4 p-4 pt-0">
         <TabTitle title="AI Career Roadmap Generator" icon={<Brain />} />
 
         {/* Two-column layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[calc(100vh-180px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-180px)]">
           {/* Left section - Form */}
           <div className="h-full overflow-y-auto">
             <RoadmapForm

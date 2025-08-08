@@ -55,6 +55,7 @@ const CompanyemployeeList = ({ companyId }) => {
       </div>
     );
   }
+  
 
   return (
     <div className="rounded-xl bg-card p-5 h-full flex flex-col">
@@ -64,7 +65,7 @@ const CompanyemployeeList = ({ companyId }) => {
         {employees.map((employee) => (
           <div key={employee.id} className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={employee.avatar} alt={employee.username} />
+              <AvatarImage src={employee.profileImage} alt={employee.username} />
               <AvatarFallback>
                 {employee.username?.charAt(0).toUpperCase() ?? "U"}
               </AvatarFallback>
