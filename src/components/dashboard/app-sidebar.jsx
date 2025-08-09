@@ -3,6 +3,7 @@ import {
   AudioWaveform,
   Bell,
   BrainCircuit,
+  Briefcase,
   Building,
   Command,
   Frame,
@@ -117,6 +118,19 @@ const data = {
         },
       ],
     },
+    {
+      title:"Jobs",
+      url: "",
+      icon:Briefcase,
+      isActive: false,
+      items: [
+        {
+          title: "Job Listings",
+          url: "/jobs",
+          isActive: false,
+        },
+      ],
+    }
   ],
 };
 

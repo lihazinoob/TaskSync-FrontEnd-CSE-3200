@@ -16,6 +16,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProjectDetails from "./components/projects/ProjectDetails";
+import Jobs from "./components/dashboard_content/Jobs";
 
 function App() {
   const location = useLocation();
@@ -26,7 +27,8 @@ function App() {
     location.pathname.includes("/company") ||
     location.pathname.includes("/profile") ||
     location.pathname.includes("/newsfeed")||
-    location.pathname.includes("/projects");
+    location.pathname.includes("/projects")||
+    location.pathname.includes("/jobs");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,6 +55,7 @@ function App() {
               <Route path="/company/my" element={<MyCompany />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/newsfeed" element={<Newsfeed />} />
+              <Route path="/jobs" element={<Jobs />} />
               
               <Route path="/projects/:id" element = {<ProjectDetails/>}/>
             </Route>
